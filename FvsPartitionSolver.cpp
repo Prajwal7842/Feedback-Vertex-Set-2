@@ -137,7 +137,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
         if(found == 1) {
             return sol2;
         }
-        return solution;
+        // return solution;
     }
 
     // Pick any vertex w of degree <= 1.
