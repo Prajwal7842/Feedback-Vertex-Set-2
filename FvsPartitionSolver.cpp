@@ -3,9 +3,6 @@
 using namespace std;
 
 
-map<int, int> originalDegree;
-
-
 void dfs(map<int, multiset<int>>& g, int u, set<int>& visited) {
     if(visited.count(u)) return ;
     visited.emplace(u);
@@ -16,8 +13,7 @@ void dfs(map<int, multiset<int>>& g, int u, set<int>& visited) {
     }
 }
 
-
-bool isForest(map<int, multiset<int>>& g) {
+bool isForest(map<int, multiset<int>> g) {
     set<int> left;
     for(auto i : g) left.emplace(i.first);
     while((int)(left.size()) > 0) {
@@ -28,7 +24,7 @@ bool isForest(map<int, multiset<int>>& g) {
         int nV = visited.size(), nE = 0;
         for(auto v : visited) nE += g[v].size();
         nE /= 2;
-        if(nE != (nV + 1)) {
+        if(nE != (nV - 1)) {
             return 0;
         }
         for(auto v : visited) {
@@ -39,6 +35,8 @@ bool isForest(map<int, multiset<int>>& g) {
 }
 
 bool isReachable(map<int, multiset<int>> g, int u, int v) {
+    if(u==v)
+        return true;
     set<int> visited;
     dfs(g, u, visited);
     return (visited.count(v) == 1);
@@ -55,21 +53,42 @@ vector<int> getNeighbourV2(map<int, multiset<int>> g, int w, set<int> v2) {
     return neigh;
 }
 
+// map<int, multiset<int>> getInducedGraph(map<int, multiset<int>> g, set<int> V) {
+//     map<int, multiset<int>> newg = g;
+//     for(int vertex : V) {
+//         newg.erase(vertex);
+//     }
+//     for(auto &u : newg) {
+//         vector<int> removeVertex;
+//         for(int v : u.second) {
+//             if(V.count(v) == 0) {
+//                 removeVertex.push_back(v);
+//             }
+//         }
+//         for(auto v : removeVertex) {
+//             u.second.erase(v);
+//         }
+//     }
+//     return newg;
+// }
+
+void delete_vertex(map<int, multiset<int>>& g, int u) {
+	g.erase(u);
+	for(auto &i: g){
+		i.second.erase(u);
+	}
+}
+
 map<int, multiset<int>> getInducedGraph(map<int, multiset<int>> g, set<int> V) {
     map<int, multiset<int>> newg = g;
-    for(int vertex : V) {
-        newg.erase(vertex);
+    vector<int> removeVertex;
+    for(auto v: g) {
+        if(V.count(v.first) == 0){
+            removeVertex.push_back(v.first);
+        }
     }
-    for(auto &u : newg) {
-        vector<int> removeVertex;
-        for(int v : u.second) {
-            if(V.count(v) == 0) {
-                removeVertex.push_back(v);
-            }
-        }
-        for(auto v : removeVertex) {
-            u.second.erase(v);
-        }
+    for(auto i: removeVertex) {
+        delete_vertex(newg, i);
     }
     return newg;
 }
@@ -81,11 +100,30 @@ map<int, multiset<int>> deleteVertex(map<int, multiset<int>> g, int vertex) {
         i.second.erase(vertex);
     }
     return newg;
-} 
+}
+
+void printGraph1(map<int, multiset<int>> adjList) {
+    for(auto i : adjList) { 
+        printf("%d->", i.first);
+        for(auto j : i.second) {
+            printf("%d ", j);
+        }
+        printf("\n");
+    }
+}
+
+void printGraphEdges1(map<int, multiset<int>> adjList) {
+    for(auto i : adjList) { 
+        for(auto j : i.second) {
+            printf("%d %d\n", i.first, j);
+        }
+    }
+    printf("\n\n");
+}
 
 set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2, int K, bool& found) {
     set<int> solution;
-    if(K <= 0 && isForest(g) == 0) {
+    if(K < 0 || (K == 0 && isForest(g) == 0)) {
         found = 0;
         return solution;
     }
@@ -96,7 +134,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
     map<int, multiset<int>> gv1 = getInducedGraph(g, v1);
     map<int, multiset<int>> gv2 = getInducedGraph(g, v2);
     for(int w : v1) {
-        vector<int> neighV2 = getNeighbourV2(gv1, w, v2);
+        vector<int> neighV2 = getNeighbourV2(g, w, v2);
         int l = neighV2.size();
         if(l <= 1) {
             continue;
@@ -121,42 +159,41 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
         // Now Apply Branching steps on w.
         
         // Case 1 : w is part of solution.
-        map<int, multiset<int>> newg = deleteVertex(g, w);
+        map<int, multiset<int>> newg1 = deleteVertex(g, w);
         set<int> newv1 = v1;
         newv1.erase(w);
-        set<int> sol = fvsPartitionSolver(newg, newv1, v2, K-1, found);
+        set<int> sol1 = fvsPartitionSolver(newg1, newv1, v2, K-1, found);
         if(found == 1) {
-            sol.emplace(w);
-            return sol;
+            sol1.emplace(w);
+            return sol1;
         }
          
         // Case 2 : w is not part of solution.
         set<int> newv2 = v2;
-        v2.emplace(w);
+        newv2.emplace(w);
         set<int> sol2 = fvsPartitionSolver(g, newv1, newv2, K, found);
         if(found == 1) {
             return sol2;
         }
-        // return solution;
+        return solution;
     }
 
     // Pick any vertex w of degree <= 1.
     for(auto w : v1) {
         if((int)(gv1[w].size()) <= 1) {
-            if(originalDegree[w] <= 1) {
+            if((int)(g[w].size()) <= 1) {
                 map<int, multiset<int>> newg = deleteVertex(g, w);
                 set<int> newv1 = v1;
                 newv1.erase(w);
                 set<int> sol = fvsPartitionSolver(newg, newv1, v2, K, found);
                 return sol;
-            }
-            else {
+            } else {
+                // w is a degree two vertex, with one vertex in v1 and another in v2.
                 vector<int> vertexV1, vertexV2;
-                for(int v : gv1[w]) {
+                for(int v : g[w]) {
                     if(v1.count(v)) {
                         vertexV1.push_back(v);
-                    }
-                    else {
+                    } else {
                         vertexV2.push_back(v);
                     }
                 }
@@ -169,7 +206,8 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
                         newg[v].emplace(u);
                     }
                 }
-                set<int> sol = fvsPartitionSolver(newg, v1, v2, K, found);
+                set<int> sol = fvsPartitionSolver(newg, newv1, v2, K, found);
+                return sol;
             }
         }
     }

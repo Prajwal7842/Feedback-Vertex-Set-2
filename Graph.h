@@ -4,8 +4,8 @@ using namespace std;
 
 class Graph {
 public:
-	map<int, vector<int>> adjList;
-    int K;
+	map<int, multiset<int>> adjList;
+	int K;
 	vector<pair<string, string>> edgeList;
 	map<string, int> strToInt;
 	map<int, string> intToStr;
