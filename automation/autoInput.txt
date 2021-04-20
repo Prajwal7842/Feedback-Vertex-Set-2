@@ -1,0 +1,2 @@
+../testcases/public/002.graph output.csv 47
+../testcases/public/003.graph output.csv 10

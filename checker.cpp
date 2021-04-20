@@ -27,7 +27,7 @@ bool hasCycle(map<int, multiset<int>> g) {
    return false;
 }
 
-void check(map<int, multiset<int>> adjList, set<int> sol) {
+bool check(map<int, multiset<int>> adjList, set<int> sol) {
   for(auto u: sol){
     adjList.erase(u);
     for(auto &i: adjList){
@@ -35,8 +35,8 @@ void check(map<int, multiset<int>> adjList, set<int> sol) {
     }
   }
   if(hasCycle(adjList)){
-    printf("Wrong solution\n");
+    return false;
   } else {
-    printf("Correct solution\n");
+    return true;
   }
 }

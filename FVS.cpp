@@ -1,25 +1,28 @@
 #include "bits/stdc++.h"
 #include "FVS.h"
+#include "Timer.h"
 
-uint32_t next(uint32_t v) {
-    uint32_t t = v | (v - 1);
-    // printf("v:%d, shift %d\n", v, __builtin_ctz(v) + 1);
+
+long long next(long long v) {
+    long long t = v | (v - 1);
+    // prlong longf("v:%d, shift %d\n", v, __builtin_ctz(v) + 1);
     return (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(v) + 1));  
 }
 
-std::vector<int> filter(const std::vector<int> v, uint32_t mask) {
+std::vector<int> filter(const std::vector<int> v, long long mask) {
     std::vector<int> res;
     while (mask) {
         res.push_back(v[__builtin_ctz(mask)]);
         mask &= mask - 1;
-    }   
+    }
     return res;
 }
 
-std::set<std::vector<int>> get_subsets(const std::vector<int> arr, int k) {   
+std::set<std::vector<int>> get_subsets(const std::vector<int> arr, long long k) {   
     std::set<std::vector<int>> s;
-    uint32_t max = (1 << arr.size());
-    for (uint32_t v = (1 << k) - 1; v < max; v = next(v)) {
+    long long size = arr.size();
+    long long max = (1LL << size);
+    for (long long v = (1LL << k) - 1; v < max; v = next(v)) {
         // printf("k%d, v:%d\n", k, v);
         s.insert(filter(arr, v));
     }
@@ -65,7 +68,7 @@ void printGraphEdges(map<int, multiset<int>> adjList) {
     printf("\n\n");
 }
 
-void solve(Graph& graph) {
+bool solve(Graph& graph, RRTimeLog& time) {
 	graph.printGraph();
     map<int, multiset<int>> g;
     int K = graph.K;
@@ -96,6 +99,12 @@ void solve(Graph& graph) {
         // Compression step
         // printf("----------------\n");
         for(int j = 1; j <= K; j ++) {
+            auto now = high_resolution_clock::now();
+            auto total_duration = duration_cast<minutes>(now - time.start_time);
+            if(total_duration.count() >= 30) {
+                cout<<"TIMEOUT\n";
+                exit(0);
+            }
             // printf("----------------\nj: %d\n", j);
             vector<int> sub(solution.begin(), solution.end());
             set<vector<int>> subsets = get_subsets(sub, j);
@@ -121,8 +130,7 @@ void solve(Graph& graph) {
                     printset(solution);
                     set<int> temp = setDifference(V, solution);
                     if(isForest(getInducedGraph(g, temp))==0){
-                        printf("---Error--\n");
-                        return;
+                        return false;
                     }
                     break;
                 }
@@ -131,13 +139,5 @@ void solve(Graph& graph) {
         }
         if(found == 0) break;
     }
-    // cout<<graph.solution.size()<<"\n";
-    if(found == 0) {
-        printf("----No Solution-----\n");
-    } else {
-        printf("----Solution-----\n");
-        printset(solution);
-        graph.solution = solution;
-    }
-    // Print solution
+    return found;
 }

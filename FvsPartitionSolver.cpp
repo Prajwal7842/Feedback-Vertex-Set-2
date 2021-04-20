@@ -72,7 +72,7 @@ vector<int> getNeighbourV2(map<int, multiset<int>> g, int w, set<int> v2) {
 //     return newg;
 // }
 
-void delete_vertex(map<int, multiset<int>>& g, int u) {
+void del_vertex(map<int, multiset<int>>& g, int u) {
 	g.erase(u);
 	for(auto &i: g){
 		i.second.erase(u);
@@ -88,7 +88,7 @@ map<int, multiset<int>> getInducedGraph(map<int, multiset<int>> g, set<int> V) {
         }
     }
     for(auto i: removeVertex) {
-        delete_vertex(newg, i);
+        del_vertex(newg, i);
     }
     return newg;
 }

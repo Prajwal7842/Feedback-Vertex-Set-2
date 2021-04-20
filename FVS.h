@@ -2,5 +2,6 @@
 #include <bits/stdc++.h>
 #include "FvsPartitionSolver.h"
 #include "Graph.h"
+#include "Timer.h"
 
-void solve(Graph& graph);
+bool solve(Graph& graph, RRTimeLog& time);
