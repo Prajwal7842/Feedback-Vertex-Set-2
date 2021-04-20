@@ -3,31 +3,31 @@
 #include "Timer.h"
 
 
-long long next(long long v) {
-    long long t = v | (v - 1);
-    // prlong longf("v:%d, shift %d\n", v, __builtin_ctz(v) + 1);
-    return (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(v) + 1));  
+
+void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> data, int i, set<vector<long long>>& ans)
+{
+    if (index == r) {
+        vector<long long> copy(data.begin(), data.end());
+        ans.insert(copy);
+        return;
+    }
+    if (i >= n)
+        return;
+    data[index] = arr[i];
+    combinationUtil(arr, n, r, index + 1, data, i + 1, ans);
+    combinationUtil(arr, n, r, index, data, i + 1, ans);
 }
 
-std::vector<int> filter(const std::vector<int> v, long long mask) {
-    std::vector<int> res;
-    while (mask) {
-        res.push_back(v[__builtin_ctz(mask)]);
-        mask &= mask - 1;
-    }
-    return res;
+
+std::set<std::vector<long long>>  get_subsets(vector<long long> arr, int r)
+{
+    int n = arr.size();
+    vector<int> data(r);
+    std::set<std::vector<long long>> ans;
+    combinationUtil(arr, n, r, 0, data, 0, ans);
+    return ans;
 }
 
-std::set<std::vector<int>> get_subsets(const std::vector<int> arr, long long k) {   
-    std::set<std::vector<int>> s;
-    long long size = arr.size();
-    long long max = (1LL << size);
-    for (long long v = (1LL << k) - 1; v < max; v = next(v)) {
-        // printf("k%d, v:%d\n", k, v);
-        s.insert(filter(arr, v));
-    }
-    return s;
-}
 
 set<int> setDifference(set<int> a, set<int> b) {
     set<int> c = a;
@@ -105,8 +105,8 @@ bool solve(Graph& graph, RRTimeLog& time) {
                 exit(0);
             }
             // printf("----------------\nj: %d\n", j);
-            vector<int> sub(solution.begin(), solution.end());
-            set<vector<int>> subsets = get_subsets(sub, j);
+            vector<long long> sub(solution.begin(), solution.end());
+            set<vector<long long>> subsets = get_subsets(sub, j);
             // For each of the disjoint problem
             for(auto vec : subsets) {
                 // printf("----------\nj: %d\n", j);
