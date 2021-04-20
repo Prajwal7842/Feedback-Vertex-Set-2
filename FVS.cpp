@@ -69,7 +69,6 @@ void printGraphEdges(map<int, multiset<int>> adjList) {
 }
 
 bool solve(Graph& graph, RRTimeLog& time) {
-	graph.printGraph();
     map<int, multiset<int>> g;
     int K = graph.K;
 
@@ -126,8 +125,6 @@ bool solve(Graph& graph, RRTimeLog& time) {
                 if(found == 1) {
                     solution = disj_sol;
                     for(auto v: vec) solution.emplace(v);
-                    printf("Sol: ");
-                    printset(solution);
                     set<int> temp = setDifference(V, solution);
                     if(isForest(getInducedGraph(g, temp))==0){
                         return false;
@@ -139,5 +136,6 @@ bool solve(Graph& graph, RRTimeLog& time) {
         }
         if(found == 0) break;
     }
+    graph.solution = solution;
     return found;
 }
