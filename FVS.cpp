@@ -4,8 +4,13 @@
 
 
 
-void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> data, int i, set<vector<long long>>& ans)
-{
+void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> data, int i, set<vector<long long>>& ans, RRTimeLog& time) {
+    auto now = high_resolution_clock::now();
+    auto total_duration = duration_cast<minutes>(now - time.start_time);
+    if(total_duration.count() >= 30) {
+        cout<<"TIMEOUT\n";
+        exit(0);
+    }
     if (index == r) {
         vector<long long> copy(data.begin(), data.end());
         ans.insert(copy);
@@ -14,17 +19,17 @@ void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> 
     if (i >= n)
         return;
     data[index] = arr[i];
-    combinationUtil(arr, n, r, index + 1, data, i + 1, ans);
-    combinationUtil(arr, n, r, index, data, i + 1, ans);
+    combinationUtil(arr, n, r, index + 1, data, i + 1, ans, time);
+    combinationUtil(arr, n, r, index, data, i + 1, ans, time);
 }
 
 
-std::set<std::vector<long long>>  get_subsets(vector<long long> arr, int r)
+std::set<std::vector<long long>>  get_subsets(vector<long long> arr, int r, RRTimeLog& time)
 {
     int n = arr.size();
     vector<int> data(r);
     std::set<std::vector<long long>> ans;
-    combinationUtil(arr, n, r, 0, data, 0, ans);
+    combinationUtil(arr, n, r, 0, data, 0, ans, time);
     return ans;
 }
 
@@ -106,7 +111,7 @@ bool solve(Graph& graph, RRTimeLog& time) {
             }
             // printf("----------------\nj: %d\n", j);
             vector<long long> sub(solution.begin(), solution.end());
-            set<vector<long long>> subsets = get_subsets(sub, j);
+            set<vector<long long>> subsets = get_subsets(sub, j, time);
             // For each of the disjoint problem
             for(auto vec : subsets) {
                 // printf("----------\nj: %d\n", j);
@@ -121,7 +126,7 @@ bool solve(Graph& graph, RRTimeLog& time) {
                 map<int, multiset<int>> newg = getInducedGraph(g, disjoint_vertices);
                 // printGraph(newg);
                 // printGraphEdges(newg);
-                set<int> disj_sol = fvsPartitionSolver(newg, v1, v2, K-j, found);
+                set<int> disj_sol = fvsPartitionSolver(newg, v1, v2, K-j, found, time);
                 if(found == 1) {
                     solution = disj_sol;
                     for(auto v: vec) solution.emplace(v);

@@ -1,2 +1,6 @@
-../testcases/public/002.graph output.csv 47
-../testcases/public/003.graph output.csv 10
+../testcases/public/091.graph output.csv 21
+../testcases/public/092.graph output.csv 16
+../testcases/public/095.graph output.csv 8
+../testcases/public/096.graph output.csv 6
+../testcases/public/098.graph output.csv 18
+../testcases/public/099.graph output.csv 8

@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include "FvsPartitionSolver.h"
+#include "Timer.h"
 using namespace std;
 
 
@@ -121,7 +122,13 @@ void printGraphEdges1(map<int, multiset<int>> adjList) {
     printf("\n\n");
 }
 
-set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2, int K, bool& found) {
+set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2, int K, bool& found, RRTimeLog& time) {
+    auto now = high_resolution_clock::now();
+    auto total_duration = duration_cast<minutes>(now - time.start_time);
+    if(total_duration.count() >= 30) {
+        cout<<"TIMEOUT\n";
+        exit(0);
+    }
     set<int> solution;
     if(K < 0 || (K == 0 && isForest(g) == 0)) {
         found = 0;
@@ -147,7 +154,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
                     set<int> newv1 = v1;
                     newv1.erase(w);
 
-                    set<int> sol = fvsPartitionSolver(newg, newv1, v2, K-1, found);
+                    set<int> sol = fvsPartitionSolver(newg, newv1, v2, K-1, found, time);
                     if(found == 1) {
                         sol.emplace(w);
                     }
@@ -162,7 +169,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
         map<int, multiset<int>> newg1 = deleteVertex(g, w);
         set<int> newv1 = v1;
         newv1.erase(w);
-        set<int> sol1 = fvsPartitionSolver(newg1, newv1, v2, K-1, found);
+        set<int> sol1 = fvsPartitionSolver(newg1, newv1, v2, K-1, found, time);
         if(found == 1) {
             sol1.emplace(w);
             return sol1;
@@ -171,7 +178,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
         // Case 2 : w is not part of solution.
         set<int> newv2 = v2;
         newv2.emplace(w);
-        set<int> sol2 = fvsPartitionSolver(g, newv1, newv2, K, found);
+        set<int> sol2 = fvsPartitionSolver(g, newv1, newv2, K, found, time);
         if(found == 1) {
             return sol2;
         }
@@ -185,7 +192,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
                 map<int, multiset<int>> newg = deleteVertex(g, w);
                 set<int> newv1 = v1;
                 newv1.erase(w);
-                set<int> sol = fvsPartitionSolver(newg, newv1, v2, K, found);
+                set<int> sol = fvsPartitionSolver(newg, newv1, v2, K, found, time);
                 return sol;
             } else {
                 // w is a degree two vertex, with one vertex in v1 and another in v2.
@@ -206,7 +213,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
                         newg[v].emplace(u);
                     }
                 }
-                set<int> sol = fvsPartitionSolver(newg, newv1, v2, K, found);
+                set<int> sol = fvsPartitionSolver(newg, newv1, v2, K, found, time);
                 return sol;
             }
         }

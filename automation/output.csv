@@ -1,1 +1,2 @@
-./testcases/test_case1.graph,2,0,0,0,0,4,8,0,0,0,
+../testcases/public/002.graph,TIMEOUT
+../testcases/public/003.graph,26767,1,5,10,1,15,30,0,0,2,
