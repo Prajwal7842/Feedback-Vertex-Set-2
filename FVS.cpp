@@ -2,9 +2,17 @@
 #include "FVS.h"
 #include "Timer.h"
 
+void sortByDegree(vector<long long> &vertices, map<int, multiset<int>>& g) {
+    auto compare = [&](int u, int v) {
+        int su = g[u].size();
+        int sv = g[v].size();
+        if(su!=sv) return su > sv;
+        return u > v;
+    };
+    sort(vertices.begin(), vertices.end(), compare);
+}
 
-
-void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> data, int i, set<vector<long long>>& ans, RRTimeLog& time) {
+void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> data, int i, vector<vector<long long>>& ans, RRTimeLog& time) {
     auto now = high_resolution_clock::now();
     auto total_duration = duration_cast<minutes>(now - time.start_time);
     if(total_duration.count() >= 30) {
@@ -13,7 +21,7 @@ void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> 
     }
     if (index == r) {
         vector<long long> copy(data.begin(), data.end());
-        ans.insert(copy);
+        ans.push_back(copy);
         return;
     }
     if (i >= n)
@@ -24,11 +32,11 @@ void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> 
 }
 
 
-std::set<std::vector<long long>>  get_subsets(vector<long long> arr, int r, RRTimeLog& time)
+std::vector<std::vector<long long>>  get_subsets(vector<long long> arr, int r, RRTimeLog& time)
 {
     int n = arr.size();
     vector<int> data(r);
-    std::set<std::vector<long long>> ans;
+    std::vector<std::vector<long long>> ans;
     combinationUtil(arr, n, r, 0, data, 0, ans, time);
     return ans;
 }
@@ -111,7 +119,10 @@ bool solve(Graph& graph, RRTimeLog& time) {
             }
             // printf("----------------\nj: %d\n", j);
             vector<long long> sub(solution.begin(), solution.end());
-            set<vector<long long>> subsets = get_subsets(sub, j, time);
+            sortByDegree(sub, g);
+            // for(auto ii : sub) cout << ii << " "; 
+            // cout << endl;
+            vector<vector<long long>> subsets = get_subsets(sub, j, time);
             // For each of the disjoint problem
             for(auto vec : subsets) {
                 // printf("----------\nj: %d\n", j);
