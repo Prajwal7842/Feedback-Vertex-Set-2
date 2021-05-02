@@ -50,9 +50,6 @@ bool rule3(map<int, multiset<int>>& g) {
 		}
 	}
 	if(merge.size() == 0) return 0;
-	// for(auto i : merge) {
-	// 	cout << i.first << " -> " << i.second.first << " " << i.second.second << endl;
-	// }
 	auto v = *merge.begin();
 	g.erase(v.first);
 	g[v.second.first].emplace(v.second.second);
@@ -101,6 +98,7 @@ int countEdges(map<int, multiset<int>> g) {
 }
 
 void reduce(Graph& graph, RRTimeLog &time) {
+	// Function to apply the reduction rules exhaustively. 
 	bool changes_to_graph = true;
 	while(changes_to_graph){
     auto now = high_resolution_clock::now();

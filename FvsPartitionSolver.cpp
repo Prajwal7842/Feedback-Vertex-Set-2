@@ -5,6 +5,7 @@ using namespace std;
 
 
 void dfs(map<int, multiset<int>>& g, int u, set<int>& visited) {
+    /* Helper function to find connected compoenents in the graph. */
     if(visited.count(u)) return ;
     visited.emplace(u);
     for(auto v : g[u]) {
@@ -15,6 +16,7 @@ void dfs(map<int, multiset<int>>& g, int u, set<int>& visited) {
 }
 
 bool isForest(map<int, multiset<int>> g) {
+    /* Function to check whether the input graph is a forest or not */
     set<int> left;
     for(auto i : g) left.emplace(i.first);
     while((int)(left.size()) > 0) {
@@ -36,6 +38,7 @@ bool isForest(map<int, multiset<int>> g) {
 }
 
 bool isReachable(map<int, multiset<int>> g, int u, int v) {
+    // Function to determine whether a vertex v is reachable from u or not. 
     if(u==v)
         return true;
     set<int> visited;
@@ -45,6 +48,7 @@ bool isReachable(map<int, multiset<int>> g, int u, int v) {
 
 
 vector<int> getNeighbourV2(map<int, multiset<int>> g, int w, set<int> v2) {
+    // Returns neighbours of all vertices  in set v2 from graph g.
     vector<int> neigh;
     for(int i : g[w]) {
         if(v2.count(i)) {
@@ -54,26 +58,9 @@ vector<int> getNeighbourV2(map<int, multiset<int>> g, int w, set<int> v2) {
     return neigh;
 }
 
-// map<int, multiset<int>> getInducedGraph(map<int, multiset<int>> g, set<int> V) {
-//     map<int, multiset<int>> newg = g;
-//     for(int vertex : V) {
-//         newg.erase(vertex);
-//     }
-//     for(auto &u : newg) {
-//         vector<int> removeVertex;
-//         for(int v : u.second) {
-//             if(V.count(v) == 0) {
-//                 removeVertex.push_back(v);
-//             }
-//         }
-//         for(auto v : removeVertex) {
-//             u.second.erase(v);
-//         }
-//     }
-//     return newg;
-// }
 
 void del_vertex(map<int, multiset<int>>& g, int u) {
+    /* Function to delete a vertex from graph inplace and all edges assosciated with it. */
 	g.erase(u);
 	for(auto &i: g){
 		i.second.erase(u);
@@ -81,6 +68,7 @@ void del_vertex(map<int, multiset<int>>& g, int u) {
 }
 
 map<int, multiset<int>> getInducedGraph(map<int, multiset<int>> g, set<int> V) {
+    // Returns induced subgraph on g from vertex set V.
     map<int, multiset<int>> newg = g;
     vector<int> removeVertex;
     for(auto v: g) {
@@ -95,6 +83,7 @@ map<int, multiset<int>> getInducedGraph(map<int, multiset<int>> g, set<int> V) {
 }
 
 map<int, multiset<int>> deleteVertex(map<int, multiset<int>> g, int vertex) {
+    // Function to delete a vertex from graph and all edges assosciated with  it and return a new graph.
     map<int, multiset<int>> newg = g;
     newg.erase(vertex);
     for(auto &i : newg) {
@@ -104,6 +93,7 @@ map<int, multiset<int>> deleteVertex(map<int, multiset<int>> g, int vertex) {
 }
 
 void printGraph1(map<int, multiset<int>> adjList) {
+    // Utility function to print a graph. 
     for(auto i : adjList) { 
         printf("%d->", i.first);
         for(auto j : i.second) {
@@ -114,6 +104,7 @@ void printGraph1(map<int, multiset<int>> adjList) {
 }
 
 void printGraphEdges1(map<int, multiset<int>> adjList) {
+    // Utility function to print edges of the graph.
     for(auto i : adjList) { 
         for(auto j : i.second) {
             printf("%d %d\n", i.first, j);
@@ -123,6 +114,8 @@ void printGraphEdges1(map<int, multiset<int>> adjList) {
 }
 
 set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2, int K, bool& found, RRTimeLog& time) {
+    // Main branching solution to either find a solution or return NO.
+
     auto now = high_resolution_clock::now();
     auto total_duration = duration_cast<minutes>(now - time.start_time);
     if(total_duration.count() >= 30) {
@@ -130,6 +123,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
         exit(0);
     }
     set<int> solution;
+    // Base Cases
     if(K < 0 || (K == 0 && isForest(g) == 0)) {
         found = 0;
         return solution;
@@ -138,6 +132,7 @@ set<int> fvsPartitionSolver(map<int, multiset<int>> g, set<int> v1, set<int> v2,
         found = 1;
         return solution;
     }
+    
     map<int, multiset<int>> gv1 = getInducedGraph(g, v1);
     map<int, multiset<int>> gv2 = getInducedGraph(g, v2);
     for(int w : v1) {

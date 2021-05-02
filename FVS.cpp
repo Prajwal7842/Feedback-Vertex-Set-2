@@ -3,7 +3,9 @@
 #include "Timer.h"
 
 void sortByDegree(vector<long long> &vertices, map<int, multiset<int>>& g) {
+    /* Function to sort the vertices by decreasing order of degree. */
     auto compare = [&](int u, int v) {
+        // Lambda function used for comparison.
         int su = g[u].size();
         int sv = g[v].size();
         if(su!=sv) return su > sv;
@@ -13,6 +15,7 @@ void sortByDegree(vector<long long> &vertices, map<int, multiset<int>>& g) {
 }
 
 void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> data, int i, vector<vector<long long>>& ans, RRTimeLog& time) {
+    /* Function to generate subsets of size i, used in iterative compression technique */
     auto now = high_resolution_clock::now();
     auto total_duration = duration_cast<minutes>(now - time.start_time);
     if(total_duration.count() >= 30) {
@@ -34,6 +37,7 @@ void combinationUtil(vector<long long> arr, int n, int r, int index,vector<int> 
 
 std::vector<std::vector<long long>>  get_subsets(vector<long long> arr, int r, RRTimeLog& time)
 {
+    // Function to generate all subsets of size r. 
     int n = arr.size();
     vector<int> data(r);
     std::vector<std::vector<long long>> ans;
@@ -43,12 +47,14 @@ std::vector<std::vector<long long>>  get_subsets(vector<long long> arr, int r, R
 
 
 set<int> setDifference(set<int> a, set<int> b) {
+    /* Helper function to find the set difference of two input sets. */
     set<int> c = a;
     for(auto i : b) c.erase(i);
     return c;
 }
 
 void printset(set<int> s){
+    /* Helper function to print sets */
 	for(auto i: s){
 		printf("%d ", i);
 	}
@@ -56,6 +62,7 @@ void printset(set<int> s){
 }
 
 void printvector(vector<int> s){
+    /* Helper function to print vectors */
 	for(auto i: s){
 		printf("%d ", i);
 	}
@@ -63,6 +70,7 @@ void printvector(vector<int> s){
 }
 
 void printGraph(map<int, multiset<int>> adjList) {
+    /* Helper function to print graphs */
     for(auto i : adjList) { 
         printf("%d->", i.first);
         for(auto j : i.second) {
@@ -73,6 +81,7 @@ void printGraph(map<int, multiset<int>> adjList) {
 }
 
 void printGraphEdges(map<int, multiset<int>> adjList) {
+    /* Helper function to print all the edges of the input graph */
     for(auto i : adjList) { 
         for(auto j : i.second) {
             printf("%d %d\n", i.first, j);
@@ -82,6 +91,7 @@ void printGraphEdges(map<int, multiset<int>> adjList) {
 }
 
 bool solve(Graph& graph, RRTimeLog& time) {
+    // Function to apply iterative compression technique to find FVS of input graph. Uses FvsPartition method to get the solution. 
     map<int, multiset<int>> g;
     int K = graph.K;
 
@@ -106,10 +116,6 @@ bool solve(Graph& graph, RRTimeLog& time) {
         found = 0;
         V.emplace(vertexSet[i]);
         solution.emplace(vertexSet[i]);
-        // printf("---------------------------------------\ni: %d\n", i);
-        // printset(solution);
-        // Compression step
-        // printf("----------------\n");
         for(int j = 1; j <= K; j ++) {
             auto now = high_resolution_clock::now();
             auto total_duration = duration_cast<minutes>(now - time.start_time);
@@ -117,27 +123,28 @@ bool solve(Graph& graph, RRTimeLog& time) {
                 cout<<"TIMEOUT\n";
                 exit(0);
             }
-            // printf("----------------\nj: %d\n", j);
+            
             vector<long long> sub(solution.begin(), solution.end());
+            
             sortByDegree(sub, g);
-            // for(auto ii : sub) cout << ii << " "; 
-            // cout << endl;
+
+            // Get all subsets of size j.
             vector<vector<long long>> subsets = get_subsets(sub, j, time);
-            // For each of the disjoint problem
+
             for(auto vec : subsets) {
-                // printf("----------\nj: %d\n", j);
-                // printf("Guess sol: ");
-                // printvector(vec);
+                // Iterate over all subsets, assuming it is in the solution.
                 set<int> F = solution;
                 set<int> F2(vec.begin(), vec.end());
+
                 // Vertices in the disjoint graph.
                 set<int> disjoint_vertices = setDifference(V, F2);
                 set<int> v1 = setDifference(V, F);
                 set<int> v2 = setDifference(F, F2);
+
                 map<int, multiset<int>> newg = getInducedGraph(g, disjoint_vertices);
-                // printGraph(newg);
-                // printGraphEdges(newg);
+                // Solve disjoint version of the problem.
                 set<int> disj_sol = fvsPartitionSolver(newg, v1, v2, K-j, found, time);
+                
                 if(found == 1) {
                     solution = disj_sol;
                     for(auto v: vec) solution.emplace(v);

@@ -3,6 +3,7 @@
 using namespace std;
 
 bool dfs(map<int, multiset<int>> g, int vertex, set<int>&visited, int parent) {
+  /* Utility function used by hasCycle(...) to find back edges using depth first search */
    visited.insert(vertex);
    for(auto v: g[vertex]) {
       if(v == parent)
@@ -16,6 +17,7 @@ bool dfs(map<int, multiset<int>> g, int vertex, set<int>&visited, int parent) {
 }
 
 bool hasCycle(map<int, multiset<int>> g) {
+  /* Function to check whether input graph has cycle or not. */
    set<int> visited;      
    for(auto v: g) {
       if(visited.find(v.first) != visited.end())   
@@ -28,6 +30,7 @@ bool hasCycle(map<int, multiset<int>> g) {
 }
 
 bool check(map<int, multiset<int>> adjList, set<int> sol) {
+  /* Checker function to determine whether the FVS solution is correct or not */
   for(auto u: sol){
     adjList.erase(u);
     for(auto &i: adjList){

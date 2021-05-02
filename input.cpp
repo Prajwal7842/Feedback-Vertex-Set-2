@@ -3,6 +3,7 @@
 using namespace std;
 
 void readInput(Graph& graph, string inputFile) {
+	// Function to read input from a file and map string to integer vertices to avoid complexity. 
 	ifstream file; 
 	file.open(inputFile);
 
